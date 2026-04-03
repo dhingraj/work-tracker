@@ -1,0 +1,392 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --app-bg: #f2f2f7;
+  --app-bg-secondary: #f8f8fb;
+  --app-surface: #ffffff;
+  --app-surface-solid: #ffffff;
+  --app-surface-muted: #f7f7fa;
+  --app-surface-subtle: #fbfbfd;
+  --app-surface-inverse: #1c1c1e;
+  --app-border: #d7d7db;
+  --app-border-soft: #e5e5ea;
+  --app-text: #1c1c1e;
+  --app-text-secondary: #636366;
+  --app-text-tertiary: #8e8e93;
+  --app-text-placeholder: #b1b1b6;
+  --app-blue: #007aff;
+  --app-blue-strong: #0066d6;
+  --app-blue-soft: rgba(0, 122, 255, 0.12);
+  --app-blue-tint: #eef5ff;
+  --app-red: #ff3b30;
+  --app-green: #34c759;
+  --app-overlay: rgba(60, 60, 67, 0.28);
+  --app-nav: rgba(249, 249, 251, 0.9);
+  --app-shadow-soft: 0 1px 2px rgba(60, 60, 67, 0.06);
+  --app-shadow-panel: 0 18px 48px rgba(28, 28, 30, 0.18);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --app-bg: #111216;
+  --app-bg-secondary: #17191e;
+  --app-surface: #1c1e24;
+  --app-surface-solid: #1c1e24;
+  --app-surface-muted: #242730;
+  --app-surface-subtle: #2a2d36;
+  --app-surface-inverse: #f5f5f7;
+  --app-border: #353844;
+  --app-border-soft: #2d3038;
+  --app-text: #f5f5f7;
+  --app-text-secondary: #c2c4cc;
+  --app-text-tertiary: #8f939c;
+  --app-text-placeholder: #6f7480;
+  --app-blue: #0a84ff;
+  --app-blue-strong: #409cff;
+  --app-blue-soft: rgba(10, 132, 255, 0.2);
+  --app-blue-tint: #12263d;
+  --app-red: #ff6961;
+  --app-green: #30d158;
+  --app-overlay: rgba(0, 0, 0, 0.45);
+  --app-nav: rgba(20, 21, 26, 0.82);
+  --app-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.24);
+  --app-shadow-panel: 0 24px 64px rgba(0, 0, 0, 0.38);
+}
+
+html {
+  min-height: 100%;
+  background: var(--app-bg);
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--app-text);
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.1), transparent 28%),
+    linear-gradient(180deg, var(--app-bg-secondary) 0%, var(--app-bg) 36%, var(--app-bg) 100%);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 126, 139, 0.38) transparent;
+}
+
+::selection {
+  background: var(--app-blue-soft);
+}
+
+.glass-panel {
+  background: color-mix(in srgb, var(--app-surface-solid) 88%, transparent);
+  backdrop-filter: blur(18px) saturate(180%);
+}
+
+.page-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grouped-section,
+.calendar-form-group {
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 1.15rem;
+  background: var(--app-surface-solid);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.section-label {
+  padding: 0 0.25rem;
+  font-size: 0.81rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--app-text-tertiary);
+}
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--app-text);
+  overflow-wrap: anywhere;
+}
+
+.section-copy {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--app-text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.grouped-row,
+.calendar-form-row {
+  display: flex;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+}
+
+.grouped-row {
+  align-items: center;
+}
+
+.grouped-row-start {
+  align-items: flex-start;
+}
+
+.grouped-section > .grouped-row + .grouped-row,
+.calendar-form-row + .calendar-form-row {
+  border-top: 1px solid var(--app-border-soft);
+}
+
+.grouped-row-title {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--app-text);
+  overflow-wrap: anywhere;
+}
+
+.grouped-row-copy {
+  font-size: 0.83rem;
+  color: var(--app-text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.grouped-row-value {
+  margin-left: auto;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--app-text-secondary);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .grouped-row {
+    gap: 0.75rem;
+    padding: 0.85rem 0.9rem;
+  }
+
+  .grouped-row-mobile-stack {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .grouped-row-mobile-stack .grouped-row-value {
+    margin-left: 0;
+    width: 100%;
+    text-align: left;
+  }
+
+  .grouped-row-mobile-stack .grouped-row-side {
+    width: 100%;
+    text-align: left;
+  }
+
+  .app-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+  }
+
+  .calendar-form-label {
+    font-size: 0.96rem;
+  }
+
+  .calendar-form-control {
+    text-align: left;
+    font-size: 1rem;
+  }
+}
+
+.calendar-form-label {
+  flex: none;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--app-text);
+}
+
+.calendar-form-control {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 1.0625rem;
+  color: var(--app-text-secondary);
+  text-align: right;
+}
+
+.calendar-form-control:focus {
+  --tw-ring-shadow: 0 0 #0000;
+  box-shadow: none;
+  outline: none;
+}
+
+.calendar-form-control::placeholder {
+  color: var(--app-text-placeholder);
+}
+
+.app-input,
+.app-select,
+.app-textarea {
+  width: 100%;
+  border-radius: 0.95rem;
+  border: 1px solid var(--app-border-soft);
+  background: var(--app-surface-muted);
+  padding: 0.8rem 0.95rem;
+  font-size: 0.95rem;
+  color: var(--app-text);
+}
+
+.app-select {
+  padding-right: 2.5rem;
+}
+
+.app-textarea {
+  min-height: 5.75rem;
+  resize: vertical;
+}
+
+.app-input::placeholder,
+.app-select::placeholder,
+.app-textarea::placeholder {
+  color: var(--app-text-placeholder);
+}
+
+.app-input:focus,
+.app-select:focus,
+.app-textarea:focus {
+  border-color: color-mix(in srgb, var(--app-blue) 42%, transparent);
+  box-shadow: 0 0 0 4px var(--app-blue-soft);
+  outline: none;
+}
+
+.app-checkbox {
+  border-color: var(--app-border);
+  color: var(--app-blue);
+  background-color: var(--app-surface-solid);
+}
+
+.app-checkbox:focus {
+  box-shadow: 0 0 0 4px var(--app-blue-soft);
+}
+
+.app-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-muted);
+  padding: 0.55rem 0.85rem;
+  font-size: 0.875rem;
+  color: var(--app-text-secondary);
+}
+
+.app-stat-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.app-stat-tile {
+  border-radius: 1rem;
+  border: 1px solid var(--app-border-soft);
+  background: var(--app-surface-muted);
+  padding: 0.95rem 1rem;
+}
+
+.app-stat-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-text-tertiary);
+}
+
+.app-stat-value {
+  margin-top: 0.35rem;
+  font-size: 1.45rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--app-text);
+  overflow-wrap: anywhere;
+}
+
+.app-stat-copy {
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--app-text-secondary);
+}
+
+.app-segmented-control {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.3rem;
+  border-radius: 1rem;
+  border: 1px solid var(--app-border-soft);
+  background: var(--app-surface-muted);
+  padding: 0.3rem;
+}
+
+.app-segmented-option {
+  min-width: 0;
+  min-height: 2.65rem;
+  border-radius: 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--app-text-secondary);
+  transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+.app-segmented-option:hover {
+  color: var(--app-text);
+}
+
+.app-segmented-option-active {
+  background: var(--app-surface-solid);
+  color: var(--app-text);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.app-accent-panel {
+  border-radius: 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--app-blue) 18%, var(--app-border));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--app-blue-tint) 60%, var(--app-surface-solid)) 0%, var(--app-surface-solid) 100%);
+  box-shadow: var(--app-shadow-soft);
+}
+
+.tile-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 420px) {
+  .tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .page-grid {
+    gap: 1.25rem;
+  }
+
+  .tile-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}

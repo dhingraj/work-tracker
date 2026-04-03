@@ -1,0 +1,249 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WorkItemStatus {
+  inbox
+  planned
+  in_progress
+  blocked
+  done
+  archived
+}
+
+enum WorkItemPriority {
+  low
+  medium
+  high
+  critical
+}
+
+enum RecurrenceRule {
+  daily
+  weekly
+  monthly
+  weekdays
+}
+
+enum ProjectStatus {
+  active
+  paused
+  completed
+  archived
+}
+
+enum ProjectHealth {
+  on_track
+  at_risk
+  off_track
+}
+
+enum SessionSource {
+  timer
+  manual
+}
+
+model User {
+  id                    String        @id @default(cuid())
+  email                 String        @unique
+  name                  String
+  passwordHash          String?
+  timezone              String        @default("America/Los_Angeles")
+  weekStartsOn          Int           @default(1)
+  dailyTargetMinutes    Int           @default(360)
+  deepWorkTarget        Int           @default(2)
+  defaultSessionMinutes Int           @default(50)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  areas                 Area[]
+  dailyPlans            DailyPlan[]
+  dailyReviews          DailyReview[]
+  projects              Project[]
+  sessions              Session[]
+  tags                  Tag[]
+  timeSessions          TimeSession[]
+  workItems             WorkItem[]
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Area {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  slug        String
+  description String?
+  color       String    @default("#1f7a78")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects    Project[]
+
+  @@unique([userId, slug])
+}
+
+model Project {
+  id            String           @id @default(cuid())
+  userId        String
+  areaId        String?
+  name          String
+  slug          String
+  description   String?
+  clientName    String?
+  status        ProjectStatus    @default(active)
+  health        ProjectHealth    @default(on_track)
+  pinned        Boolean          @default(false)
+  sortOrder     Int              @default(0)
+  targetOutcome String?
+  notes         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  area          Area?            @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sections      ProjectSection[]
+  workItems     WorkItem[]
+
+  @@unique([userId, slug])
+}
+
+model ProjectSection {
+  id        String     @id @default(cuid())
+  projectId String
+  name      String
+  position  Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workItems WorkItem[]
+
+  @@index([projectId, position])
+}
+
+model Tag {
+  id        String        @id @default(cuid())
+  userId    String
+  name      String
+  color     String        @default("#d6a859")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workItems WorkItemTag[]
+
+  @@unique([userId, name])
+}
+
+model WorkItem {
+  id                 String           @id @default(cuid())
+  userId             String
+  projectId          String?
+  sectionId          String?
+  title              String
+  status             WorkItemStatus   @default(inbox)
+  priority           WorkItemPriority @default(medium)
+  dueDate            DateTime?
+  estimateMinutes    Int?
+  notes              String?
+  recurring          Boolean          @default(false)
+  recurrenceRule     RecurrenceRule?
+  completedAt        DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  project            Project?         @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  section            ProjectSection?  @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions           TimeSession[]
+  subtasks           Subtask[]
+  tags               WorkItemTag[]
+  priorityOnePlans   DailyPlan[]      @relation("TopPriorityOne")
+  priorityTwoPlans   DailyPlan[]      @relation("TopPriorityTwo")
+  priorityThreePlans DailyPlan[]      @relation("TopPriorityThree")
+}
+
+model Subtask {
+  id          String    @id @default(cuid())
+  workItemId  String
+  title       String
+  position    Int       @default(0)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workItem    WorkItem  @relation(fields: [workItemId], references: [id], onDelete: Cascade)
+
+  @@index([workItemId, position])
+}
+
+model WorkItemTag {
+  workItemId String
+  tagId      String
+  workItem   WorkItem @relation(fields: [workItemId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([workItemId, tagId])
+}
+
+model TimeSession {
+  id                 String        @id @default(cuid())
+  userId             String
+  workItemId         String?
+  startedAt          DateTime
+  endedAt            DateTime?
+  sessionNotes       String?
+  interruptionReason String?
+  isDeepWork         Boolean       @default(false)
+  source             SessionSource @default(timer)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workItem           WorkItem?     @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+}
+
+model DailyPlan {
+  id        String    @id @default(cuid())
+  userId    String
+  date      DateTime
+  note      String?
+  top1Id    String?
+  top2Id    String?
+  top3Id    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  top1      WorkItem? @relation("TopPriorityOne", fields: [top1Id], references: [id], onDelete: SetNull)
+  top2      WorkItem? @relation("TopPriorityTwo", fields: [top2Id], references: [id], onDelete: SetNull)
+  top3      WorkItem? @relation("TopPriorityThree", fields: [top3Id], references: [id], onDelete: SetNull)
+
+  @@unique([userId, date])
+}
+
+model DailyReview {
+  id           String   @id @default(cuid())
+  userId       String
+  date         DateTime
+  completed    String?
+  blocked      String?
+  lessons      String?
+  carryForward String?
+  energyScore  Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
