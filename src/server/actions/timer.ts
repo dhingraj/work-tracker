@@ -11,13 +11,15 @@ import { manualSessionSchema } from "@/lib/validators";
 function revalidateTimerPaths() {
   revalidatePath("/");
   revalidatePath("/calendar");
-  revalidatePath("/dashboard");
   revalidatePath("/items");
   revalidatePath("/timer");
   revalidatePath("/review/daily");
 }
 
-async function resolveOwnedWorkItemId(userId: string, workItemId?: string | null) {
+async function resolveOwnedWorkItemId(
+  userId: string,
+  workItemId?: string | null,
+) {
   if (!workItemId) {
     return null;
   }
@@ -37,10 +39,14 @@ export async function startTimerAction(formData: FormData) {
   const user = await requireCurrentUser();
   const workItemIdValue = formData.get("workItemId");
   const requestedWorkItemId =
-    typeof workItemIdValue === "string" && workItemIdValue ? workItemIdValue : null;
+    typeof workItemIdValue === "string" && workItemIdValue
+      ? workItemIdValue
+      : null;
   const workItemId = await resolveOwnedWorkItemId(user.id, requestedWorkItemId);
   const notes =
-    typeof formData.get("sessionNotes") === "string" ? formData.get("sessionNotes") : null;
+    typeof formData.get("sessionNotes") === "string"
+      ? formData.get("sessionNotes")
+      : null;
   const isDeepWork = formData.get("isDeepWork") === "on";
 
   await prisma.timeSession.updateMany({
@@ -70,7 +76,8 @@ export async function startTimerAction(formData: FormData) {
       userId: user.id,
       workItemId,
       startedAt: new Date(),
-      sessionNotes: typeof notes === "string" && notes.trim() ? notes.trim() : null,
+      sessionNotes:
+        typeof notes === "string" && notes.trim() ? notes.trim() : null,
       isDeepWork,
       source: SessionSource.timer,
     },
@@ -87,7 +94,9 @@ export async function stopTimerAction(formData: FormData) {
   }
 
   const sessionNotes =
-    typeof formData.get("sessionNotes") === "string" ? formData.get("sessionNotes") : null;
+    typeof formData.get("sessionNotes") === "string"
+      ? formData.get("sessionNotes")
+      : null;
   const interruptionReason =
     typeof formData.get("interruptionReason") === "string"
       ? formData.get("interruptionReason")
@@ -102,7 +111,9 @@ export async function stopTimerAction(formData: FormData) {
     data: {
       endedAt: new Date(),
       sessionNotes:
-        typeof sessionNotes === "string" && sessionNotes.trim() ? sessionNotes.trim() : null,
+        typeof sessionNotes === "string" && sessionNotes.trim()
+          ? sessionNotes.trim()
+          : null,
       interruptionReason:
         typeof interruptionReason === "string" && interruptionReason.trim()
           ? interruptionReason.trim()
